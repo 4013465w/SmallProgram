@@ -3,8 +3,8 @@
 using namespace std;
 
 string data[100];
-int c[100],indexd=0,ans[38][38],indexc=0,j=0;
-int i=0;
+int c[100],indexd=0,ans[38][38],indexc=0,j=0,isError=0;
+int i=0;int index_ck=0,syn;
 string demo[38];
 bool is_letter(char s){//判断是否为字母
  if(s>='a'&&s<='z'||s>='A'&&s<='Z'){
@@ -35,13 +35,16 @@ bool is_bit2(){//是否为二进制数
 		}
 	  }
 	  if(data[indexd][j+m]=='e'){
-		m++;   
+		m++;  
+			if(data[indexd][j]=='+'||data[indexd][j]=='-'){
+			m++;
+		  }
 		while(is_num(data[indexd][j+m])){
 			m++;
 		}
 	  }
 	  if(result){
-			j+=m;
+			j+=m-1;
 			c[indexc]=20;
 			indexc++;
 	  }
@@ -70,8 +73,9 @@ bool other_str(){//判断其他变量名
 		result=1;
 	}
 	if(result){
-			c[indexc-1]=10;
+			c[indexc]=10;
 		    indexc++;
+			j--;
 	}
 
  return result;
@@ -103,6 +107,8 @@ void compare(){//路由
 			 result=cmpstr(1);
 			 if(result){
 				break;
+			 }else if(other_str()){
+				break;
 			 }
 		 case 'i':
 				result=cmpstr(2);
@@ -112,10 +118,14 @@ void compare(){//路由
 				result=cmpstr(6);
 				if(result){
 					break;
-				 }
+				 }if(other_str()){
+				break;
+			 }
 		 case 'f':
 			 result=cmpstr(3);
 			 if(result){
+				break;
+			 }if(other_str()){
 				break;
 			 }
 		 case 'd':
@@ -126,22 +136,31 @@ void compare(){//路由
 			 result=cmpstr(8);
 			 if(result){
 				break;
+			 }if(other_str()){
+				break;
 			 }
 		 case 'c':
 			result=cmpstr(5);
 				if(result){
 					break;
 			 }
+				if(other_str()){
+				break;
+			 }
 		 case 'e':
 			result=cmpstr(7);
 				if(result){
 					break;
+			 }if(other_str()){
+				break;
 			 }
 				
 		case 'w':
 			result=cmpstr(9);
 				if(result){
 					break;
+			 }if(other_str()){
+				break;
 			 }
 			
 		case '='://==
@@ -150,69 +169,63 @@ void compare(){//路由
 					break;
 				}
 				c[indexc]=21;
-				j++;
 				indexc++;
 				break;
 		case '+'://单独处理
 			if(indexc>0&&(c[indexc-1]==22||c[indexc-1]==23||c[indexc-1]==24||c[indexc-1]==225)){
-			
+				
+				if(is_bit2()){
+					break;
+			 }
 			}else{
 				//result=two_str();
 				c[indexc]=22;
 				indexc++;
-				j++;
 				break;	
 			}
 		case '-'://单独处理
 			if(indexc>0&&(c[indexc-1]==22||c[indexc-1]==23||c[indexc-1]==24||c[indexc-1]==225)){
-			
+				if(is_bit2()){
+					break;
+			 }
 			}else{
 				c[indexc]=23;
 				indexc++;
-				j++;
 				break;
 			}
 		case '*':
 				c[indexc]=24;
 				indexc++;
-				j++;
 				break;
 		case '/':
 				c[indexc]=25;
 				indexc++;
-				j++;
 				break;
 		case '(':
 				c[indexc]=26;
 				indexc++;
-				j++;
 				break;
 		case ')':
 				c[indexc]=27;
 				indexc++;
-				j++;
 				break;
 
 		case '{':
 				c[indexc]=28;
 				indexc++;
-				j++;
 				break;
 		case '}':
 				c[indexc]=29;
 				indexc++;
-				j++;
 				break;
 
 		case ',':
 				c[indexc]=30;
 				indexc++;
-				j++;
 				break;
 		case ';':
 				c[indexc]=31;
 				indexc++;
-				j++;
 				break;
 		case '>'://///>=
 			    result = two_str(33);
@@ -221,7 +234,6 @@ void compare(){//路由
 				}
 				c[indexc]=32;
 				indexc++;
-				j++;
 				break;
 		case '<':
 			    result = two_str(35);//<=
@@ -230,14 +242,13 @@ void compare(){//路由
 				}
 				c[indexc]=34;
 				indexc++;
-				j++;
 				break;
 		case '!'://///!=
 			    result = two_str(37);
 				if(result){
 					break;
 				}
-		case '\n':j++;
+		case '\n':
 			   break;
         default:
 			
@@ -256,6 +267,48 @@ void compare(){//路由
 }
 
 
+/**
+  语法分析
+  **/
+  void E(); void T(); void F(); 
+void E(){
+	T();
+		while((syn==22)||(syn==23))
+		{
+				index_ck++;
+				syn=c[index_ck];
+			T();
+		}
+	}
+void T(){
+		F();
+		while((syn==24)||(syn==25))
+		{
+				index_ck++;
+				syn=c[index_ck];
+			F();
+		}
+}
+void F(){
+	if((syn==20)||(syn==10)){
+			index_ck++;
+			syn=c[index_ck];}
+	 else if(syn==26)
+	{
+			index_ck++;
+				syn=c[index_ck];
+		E();
+		if(syn==27)
+		{
+				index_ck++;
+				syn=c[index_ck];
+		}
+		else
+		isError=1;
+	}
+	else
+	isError=1;
+}
 int main(){
 
 demo[0]="#",
@@ -288,7 +341,7 @@ demo[35]="<=",
 demo[36]="==",
 demo[37]="!=";
 
-
+i=0;
 	
 	while(cin>>data[i]&&data[i][data[i].size()-1]!='#'){
 	//	cout<<Data[i][Data[i].length()-1]<<endl;
@@ -299,8 +352,9 @@ demo[37]="!=";
 	 for(indexd=0;indexd<=n;indexd++){
 		 for (j=0;j<data[indexd].size();j++){
 			//cout<<Data[i][j]<<endl;
+			// cout<<data[indexd][j]<<"  "<<c[indexc-1]<<endl;
 			 compare();
-			 cout<<data[indexd][j]<<"  "<<c[indexc]<<endl;
+			 
 		 
 		 } 
 	 }
@@ -309,12 +363,23 @@ demo[37]="!=";
 			ans[i][q]=0;
 		 }
 	 }
-	 for(i=0;i<=indexc;i++){
+	/* for(i=0;i<=indexc;i++){
 		cout<<c[i]<<endl;
+	 }*/
+	 
+		syn=c[index_ck];
+	 if((syn==20)||(syn==10)||(syn==26)) 
+	 { 
+		 E(); 
+	 }
+	 else{
+	  isError=1;
 	 }
 
-
-
+		if(isError==0)
+			printf("success\n");
+		else
+			printf("error\n");
 
 
 

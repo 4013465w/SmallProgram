@@ -2,5 +2,7 @@
 *.dsp
 *.ncb
 *.plg
+*.opt
+*.dsw
 Debug/
 
